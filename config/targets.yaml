@@ -1,0 +1,156 @@
+# All targets live here - collectors contain no hard-coded targets.
+# Entries marked VERIFY are best-effort starting values; check before relying on them: [DONE]
+#   ASNs/prefixes: https://stat.ripe.net/ (announced-prefixes) or bgp.he.net
+#   Atlas msm IDs: https://atlas.ripe.net/measurements/ (filter 'built-in' / by target)
+#   IODA entity codes: https://ioda.inetintel.cc.gatech.edu/ (region pages show numeric IDs)
+
+http:
+  timeout_s: 20
+  max_retries: 2
+  min_interval_s: 0.5
+
+collectors:
+  ioda:
+    enabled: true
+    lookback_minutes: 60
+    include_pakistan_asns: true
+    fetch_outage_events: true
+    entities:
+      - {type: 'country', code: 'PK', group: 'pakistan', description: 'Pakistan national'}
+      - {type: 'region', code: '3084', group: 'pakistan', description: 'Islamabad Capital Territory'}
+      - {type: 'country', code: 'IN', group: 'cross_location', description: 'Neighbour control (India)'}
+      - {type: 'country', code: 'AE', group: 'cross_location', description: 'Gulf transit control (UAE)'}
+  ooni:
+    enabled: true
+    probe_cc: 'PK'
+    lookback_minutes: 180
+    test_names: ['web_connectivity']
+    per_target_limit: 50
+    summary_limit: 500
+    max_detail_fetches: 5
+  ripe_atlas:
+    enabled: true
+    lookback_minutes: 15
+    max_pakistan_probes: 25
+    control_countries: ['IN', 'AE', 'DE', 'SG']
+    probes_per_control_country: 3
+    extra_probe_ids: []
+  bgp:
+    enabled: true
+    sourceapp: 'pk-connectivity-monitor'
+    fetch_updates: true
+    updates_lookback_minutes: 30
+  runner_probe:
+    enabled: true
+    timeout_s: 8
+
+# access_type: mobile | fixed | mixed | research | transit  (first-class dimension)
+# Mobile vs fixed access will require more work than we have the time for. Intermediate heuristic:
+# Mobile-oriented:
+#  Jazz
+#  Telenor
+#  Zong
+#
+# Fixed-oriented:
+#  Nayatel
+#  Cybernet
+#  PTCL
+
+pakistan_asns:
+  - {asn: 17557, name: 'Pakistan Telecommunication Company Limited (PTCL)', access_type: 'Eyeball', description: 'Incumbent telecom operator; fixed broadband/home ISP, business broadband, and mobile data/carrier'}
+  - {asn: 45669, name: 'JPL /LDI IP TRANSIT', access_type: 'Eyeball', description: 'Jazz/JazzWorld Pakistan; mobile/home ISP network'}
+  - {asn: 24499, name: 'Telenor Pakistan', access_type: 'Eyeball', description: 'Telenor Pakistan mobile/operator network'}
+  - {asn: 59257, name: 'Zong (CMPak Limited)', access_type: 'Eyeball', description: 'Zong/CMPak mobile data and carrier network'}
+  - {asn: 23674, name: 'Nayatel (Pvt) Ltd', access_type: 'Eyeball', description: 'Nayatel broadband/home ISP network'}
+  - {asn: 9541, name: 'Cyber Internet Services (Pvt) Ltd.', access_type: 'Eyeball', description: 'Cybernet fixed broadband/home ISP network'}
+  - {asn: 38193, name: 'Transworld Associates (Pvt.) Ltd.', access_type: 'Carrier', description: 'Carrier/wholesale network with international transit connectivity'}
+  - {asn: 45773, name: 'Pakistan Educational Research Network (PERN)', access_type: 'Eyeball', description: 'Academic/research network operated for Pakistan education and research institutions'}
+
+pakistan_prefixes:
+  - {prefix: '39.32.160.0/20', origin_asn: 17557, description: 'PTCL block', category: 'fixed'}
+  - {prefix: '39.34.32.0/20', origin_asn: 17557, description: 'PTCL block', category: 'fixed'}
+  - {prefix: '39.34.48.0/20', origin_asn: 17557, description: 'PTCL block', category: 'fixed'}
+  - {prefix: '39.35.224.0/20', origin_asn: 17557, description: 'PTCL block', category: 'fixed'}
+  - {prefix: '39.38.112.0/20', origin_asn: 17557, description: 'PTCL block', category: 'fixed'}
+
+  - {prefix: '149.40.128.0/20', origin_asn: 45669, description: 'Jazz block', category: 'mobile'}
+  - {prefix: '149.40.160.0/20', origin_asn: 45669, description: 'Jazz block', category: 'mobile'}
+  - {prefix: '149.40.192.0/20', origin_asn: 45669, description: 'Jazz block', category: 'mobile'}
+  - {prefix: '149.40.208.0/20', origin_asn: 45669, description: 'Jazz block', category: 'mobile'}
+  - {prefix: '154.198.64.0/19', origin_asn: 45669, description: 'Jazz block', category: 'mobile'}
+
+  - {prefix: '37.111.128.0/24', origin_asn: 24499, description: 'Telenor Pakistan block', category: 'mobile'}
+  - {prefix: '37.111.129.0/24', origin_asn: 24499, description: 'Telenor Pakistan block', category: 'mobile'}
+  - {prefix: '37.111.130.0/24', origin_asn: 24499, description: 'Telenor Pakistan block', category: 'mobile'}
+  - {prefix: '37.111.131.0/24', origin_asn: 24499, description: 'Telenor Pakistan block', category: 'mobile'}
+  - {prefix: '37.111.132.0/24', origin_asn: 24499, description: 'Telenor Pakistan block', category: 'mobile'}
+
+  - {prefix: '111.119.176.0/20', origin_asn: 59257, description: 'Zong/CMPak block', category: 'mobile'}
+  - {prefix: '223.123.0.0/20', origin_asn: 59257, description: 'Zong/CMPak block', category: 'mobile'}
+  - {prefix: '223.123.16.0/20', origin_asn: 59257, description: 'Zong/CMPak block', category: 'mobile'}
+  - {prefix: '223.123.64.0/20', origin_asn: 59257, description: 'Zong/CMPak block', category: 'mobile'}
+  - {prefix: '223.123.80.0/20', origin_asn: 59257, description: 'Zong/CMPak block', category: 'mobile'}
+
+  - {prefix: '151.123.128.0/20', origin_asn: 23674, description: 'Nayatel block', category: 'fixed'}
+  - {prefix: '203.82.48.0/20', origin_asn: 23674, description: 'Nayatel block', category: 'fixed'}
+  - {prefix: '203.99.48.0/20', origin_asn: 23674, description: 'Nayatel block', category: 'fixed'}
+  - {prefix: '203.175.64.0/20', origin_asn: 23674, description: 'Nayatel block', category: 'fixed'}
+  - {prefix: '58.65.128.0/19', origin_asn: 23674, description: 'Nayatel block', category: 'fixed'}
+
+  - {prefix: '139.135.32.0/21', origin_asn: 9541, description: 'Cybernet block', category: 'fixed'}
+  - {prefix: '144.48.128.0/21', origin_asn: 9541, description: 'Cybernet block', category: 'fixed'}
+  - {prefix: '202.47.32.0/21', origin_asn: 9541, description: 'Cybernet block', category: 'fixed'}
+  - {prefix: '202.47.48.0/21', origin_asn: 9541, description: 'Cybernet block', category: 'fixed'}
+  - {prefix: '72.255.16.0/22', origin_asn: 9541, description: 'Cybernet block', category: 'fixed'}
+
+  - {prefix: '103.236.132.0/22', origin_asn: 38193, description: 'Transworld block', category: 'carrier'}
+  - {prefix: '149.71.36.0/22', origin_asn: 38193, description: 'Transworld block', category: 'carrier'}
+  - {prefix: '103.62.234.0/23', origin_asn: 38193, description: 'Transworld block', category: 'carrier'}
+  - {prefix: '103.236.132.0/23', origin_asn: 38193, description: 'Transworld block', category: 'carrier'}
+  - {prefix: '103.236.134.0/23', origin_asn: 38193, description: 'Transworld block', category: 'carrier'}
+
+  - {prefix: '121.52.152.0/23', origin_asn: 45773, description: 'PERN block', category: 'academic'}
+  - {prefix: '121.52.158.0/23', origin_asn: 45773, description: 'PERN block', category: 'academic'}
+  - {prefix: '165.99.206.0/23', origin_asn: 45773, description: 'PERN block', category: 'academic'}
+  - {prefix: '165.101.126.0/23', origin_asn: 45773, description: 'PERN block', category: 'academic'}
+  - {prefix: '45.64.24.0/24', origin_asn: 45773, description: 'PERN block', category: 'academic'}
+
+targets:
+  domains:
+    - {name: 'pta.gov.pk', description: 'PK telecom regulator', category: 'government', group: 'pakistan'}
+    - {name: 'ptcl.com.pk', description: 'PTCL website', category: 'isp', group: 'pakistan'}
+    - {name: 'dawn.com', description: 'Major PK news site', category: 'news', group: 'pakistan'}
+  ips: []
+  urls:
+    - {url: 'https://www.pta.gov.pk/', description: 'PTA homepage', category: 'government', group: 'pakistan'}
+
+international_control_targets:
+  domains:
+    - {name: 'example.com', description: 'IANA stable control', category: 'control', group: 'international_control'}
+    - {name: 'wikipedia.org', description: 'Global CDN control', category: 'control', group: 'international_control'}
+  ips:
+    - {address: '1.1.1.1', port: 443, description: 'Cloudflare anycast', category: 'control', group: 'international_control'}
+    - {address: '9.9.9.9', port: 443, description: 'Quad9 anycast', category: 'control', group: 'international_control'}
+  urls:
+    - {url: 'https://www.google.com/generate_204', description: 'Google 204', category: 'control', group: 'international_control'}
+
+ooni_targets:
+  # Deliberately small: mix of PK-hosted, commonly-tested and control domains
+  - {domain: 'www.youtube.com', description: 'Frequently restricted platform', category: 'social', group: 'international_control'}
+  - {domain: 'x.com', description: 'Frequently restricted platform', category: 'social', group: 'international_control'}
+  - {domain: 'www.facebook.com', description: 'Social', category: 'social', group: 'international_control'}
+  - {domain: 'www.whatsapp.com', description: 'Messaging', category: 'messaging', group: 'international_control'}
+  - {domain: 'www.dawn.com', description: 'PK news', category: 'news', group: 'pakistan'}
+  - {domain: 'www.wikipedia.org', description: 'Reference control', category: 'control', group: 'international_control'}
+
+ripe_atlas_measurements:
+  # Verified 2026-09-24 against RIPE Atlas measurement metadata.
+  - {id: 1001, type: 'ping', target: 'k.root-servers.net',
+     description: 'Built-in ping K-root', category: 'dns_root', group: 'international_control'}
+
+  - {id: 1004, type: 'ping', target: 'f.root-servers.net',
+     description: 'Built-in ping F-root', category: 'dns_root', group: 'international_control'}
+
+  - {id: 10001, type: 'dns', target: 'k.root-servers.net',
+     description: 'Built-in DNS/SOA K-root', category: 'dns_root', group: 'international_control'}
+  # Add anchor measurements toward PK anchors here (group: 'pakistan') once identified.
