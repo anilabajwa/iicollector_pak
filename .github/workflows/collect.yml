@@ -19,31 +19,38 @@ jobs:
     timeout-minutes: 8
     steps:
       - name: Check collection end date
+        id: date_check
         run: |
           END_DATE="2026-09-30T12:00:00Z"
           NOW=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-          if [[ "$NOW" >= "$END_DATE" ]]; then
+          if [[ "$NOW" < "$END_DATE" ]]; then
+            echo "active=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "active=false" >> "$GITHUB_OUTPUT"
             echo "Collection period has ended at 00:00 Sep 30 AoE"
-            exit 0
           fi
 
       - uses: actions/checkout@v4
+        if: steps.date_check.outputs.active == 'true'
         with:
           fetch-depth: 1
 
       - uses: actions/setup-python@v5
+        if: steps.date_check.outputs.active == 'true'
         with:
           python-version: '3.12'
           cache: 'pip'
 
       - run: pip install --quiet -r requirements.txt
+        if: steps.date_check.outputs.active == 'true'
 
       - id: run
+        if: steps.date_check.outputs.active == 'true'
         run: python -m collector
 
       - name: Commit and push
-        if: steps.run.outputs.meaningful == 'true'
+        if: steps.date_check.outputs.active == 'true' && steps.run.outputs.meaningful == 'true'
         env:
           SLOT: ${{ steps.run.outputs.slot }}
         run: |
